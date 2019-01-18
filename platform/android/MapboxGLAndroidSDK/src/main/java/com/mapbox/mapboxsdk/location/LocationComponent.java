@@ -705,6 +705,7 @@ public final class LocationComponent {
    *
    * @param options to update the current style
    */
+  @SuppressLint("MissingPermission")
   public void applyStyle(@NonNull final LocationComponentOptions options) {
     checkActivationState();
     LocationComponent.this.options = options;
@@ -716,8 +717,15 @@ public final class LocationComponent {
       locationAnimatorCoordinator.setTrackingAnimationDurationMultiplier(options.trackingAnimationDurationMultiplier());
       locationAnimatorCoordinator.setCompassAnimationEnabled(options.compassAnimationEnabled());
       locationAnimatorCoordinator.setAccuracyAnimationEnabled(options.accuracyAnimationEnabled());
+      if (options.pulseEnabled()) {
+        startPulsingLocationCircle();
+      }
       updateMapWithOptions(options);
     }
+  }
+
+  public void startPulsingLocationCircle() {
+    locationAnimatorCoordinator.startLocationComponentCirclePulsing(options);
   }
 
   /**
@@ -1145,6 +1153,14 @@ public final class LocationComponent {
     }
   }
 
+  /**
+   * Available to cancel the specific pulsing circle animation.
+   */
+  public void cancelPulsingLocationCircle() {
+    locationAnimatorCoordinator.cancelPulsingCircleAnimation();
+    locationLayerController.adjustPulsingCircleLayerVisibility(false);
+  }
+
   @SuppressLint("MissingPermission")
   private void onLocationLayerStart() {
     if (!isComponentInitialized || !isComponentStarted || mapboxMap.getStyle() == null) {
@@ -1170,6 +1186,9 @@ public final class LocationComponent {
         }
       }
       setCameraMode(locationCameraController.getCameraMode());
+      if (options.pulseEnabled()) {
+        startPulsingLocationCircle();
+      }
       setLastLocation();
       updateCompassListenerState(true);
       setLastCompassHeading();
@@ -1223,7 +1242,7 @@ public final class LocationComponent {
     locationAnimatorCoordinator = new LocationAnimatorCoordinator(
       mapboxMap.getProjection(),
       MapboxAnimatorSetProvider.getInstance(),
-      MapboxAnimatorProvider.getInstance()
+      MapboxAnimatorProvider.getInstance(), options
     );
     locationAnimatorCoordinator.setTrackingAnimationDurationMultiplier(options
       .trackingAnimationDurationMultiplier());
@@ -1337,6 +1356,9 @@ public final class LocationComponent {
     boolean isLocationLayerHidden = locationLayerController.isHidden();
     if (isEnabled && isComponentStarted && isLocationLayerHidden) {
       locationLayerController.show();
+      if (options.pulseEnabled()) {
+        locationLayerController.adjustPulsingCircleLayerVisibility(true);
+      }
     }
   }
 
