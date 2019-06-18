@@ -669,6 +669,37 @@ public final class Property {
   @Retention(RetentionPolicy.SOURCE)
   public @interface ANCHOR {}
 
+  // TEXT_WRITING_MODE: The property allows to control an orientation of a symbol. Note that the property values act as a hint, so that a symbol whose language doesn’t support the provided orientation will be laid out in its natural orientation. Example: English point symbol will be rendered horizontally even if array value contains single 'vertical' enum value. The order of elements in an array define priority order for the placement of an orientation variant.
+
+  /**
+   * If a text's language supports horizontal writing mode, symbols with point placement would be laid out horizontally.
+   */
+  public static final String TEXT_WRITING_MODE_HORIZONTAL = "horizontal";
+  /**
+   * If a text's language supports vertical writing mode, symbols with point placement would be laid out vertically. Full-width Latin script glyphs would be rendered in upright orientation while half-width Latin script glyphs would be rendered in their respective natural orientation in vertical writing mode.
+   */
+  public static final String TEXT_WRITING_MODE_VERTICAL = "vertical";
+  /**
+   * If a text's language supports vertical writing mode, symbols with point placement would be laid out vertically. Latin script glyphs would be rendered in upright orientation.
+   */
+  public static final String TEXT_WRITING_MODE_VERTICAL_LATIN_UPRIGHT = "vertical-latin-upright";
+  /**
+   * If a text's language supports vertical writing mode, symbols with point placement would be laid out vertically. Latin script glyphs would be rendered in their respective natural orientation in vertical writing mode
+   */
+  public static final String TEXT_WRITING_MODE_VERTICAL_LATIN_SIDEWAYS = "vertical-latin-sideways";
+
+  /**
+   * The property allows to control an orientation of a symbol. Note that the property values act as a hint, so that a symbol whose language doesn’t support the provided orientation will be laid out in its natural orientation. Example: English point symbol will be rendered horizontally even if array value contains single 'vertical' enum value. The order of elements in an array define priority order for the placement of an orientation variant.
+   */
+  @StringDef({
+      TEXT_WRITING_MODE_HORIZONTAL,
+      TEXT_WRITING_MODE_VERTICAL,
+      TEXT_WRITING_MODE_VERTICAL_LATIN_UPRIGHT,
+      TEXT_WRITING_MODE_VERTICAL_LATIN_SIDEWAYS,
+    })
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface TEXT_WRITING_MODE {}
+
 
   private Property() {
   }
