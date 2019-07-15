@@ -317,7 +317,7 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions
             const float lineHeight = layout.get<TextLineHeight>() * util::ONE_EM;
             const float spacing = util::i18n::allowsLetterSpacing(feature.formattedText->rawText()) ? layout.evaluate<TextLetterSpacing>(zoom, feature) * util::ONE_EM : 0.0f;
 
-            auto applyShaping = [&] (const TaggedString& formattedText, WritingModeType writingMode, SymbolAnchorType textAnchor, TextJustifyType textJustify) {
+            auto applyShaping = [&] (const TaggedString& formattedText, WritingModeType writingMode, SymbolAnchorType textAnchor, TextJustifyType textJustify, optional<style::TextWritingModeType> verticalWritingModeType = nullopt) {
                 const Shaping result = getShaping(
                     /* string */ formattedText,
                     /* maxWidth: ems */ isPointPlacement ? layout.evaluate<TextMaxWidth>(zoom, feature) * util::ONE_EM : 0.0f,
@@ -328,7 +328,8 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions
                     /* translate */ textOffset,
                     /* writingMode */ writingMode,
                     /* bidirectional algorithm object */ bidi,
-                    /* glyphs */ glyphMap);
+                    /* glyphs */ glyphMap,
+                    verticalWritingModeType);
 
                 return result;
             };
@@ -356,7 +357,7 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions
                     // Vertical POI label placement is meant to be used for scripts that support vertical
                     // writing mode, thus, default style::TextJustifyType::Left justification is used. If Latin
                     // scripts would need to be supported, this should take into account other justifications.
-                    shapedTextOrientations.vertical = applyShaping(*feature.formattedText, WritingModeType::Vertical, textAnchor, style::TextJustifyType::Left);
+                    shapedTextOrientations.vertical = applyShaping(*feature.formattedText, WritingModeType::Vertical, textAnchor, style::TextJustifyType::Left, verticalWritingMode);
                 }
             };
 

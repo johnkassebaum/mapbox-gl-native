@@ -290,7 +290,8 @@ void shapeLines(Shaping& shaping,
                 const style::SymbolAnchorType textAnchor,
                 const style::TextJustifyType textJustify,
                 const WritingModeType writingMode,
-                const GlyphMap& glyphMap) {
+                const GlyphMap& glyphMap,
+                const optional<style::TextWritingModeType>& verticalWritingMode) {
     float x = 0;
     float y = Shaping::yOffset;
     
@@ -311,6 +312,8 @@ void shapeLines(Shaping& shaping,
             y += lineHeight; // Still need a line feed after empty line
             continue;
         }
+
+        bool isTextWritingModeLatinSideways = verticalWritingMode && *verticalWritingMode == style::TextWritingModeType::VerticalLatinSideways;
         
         std::size_t lineStartIndex = shaping.positionedGlyphs.size();
         for (std::size_t i = 0; i < line.length(); i++) {
@@ -332,12 +335,13 @@ void shapeLines(Shaping& shaping,
             const double baselineOffset = (lineMaxScale - section.scale) * util::ONE_EM;
             
             const Glyph& glyph = **it->second;
-            
+
             if (writingMode == WritingModeType::Horizontal || !util::i18n::hasUprightVerticalOrientation(codePoint)) {
                 shaping.positionedGlyphs.emplace_back(codePoint, x, y + baselineOffset, false, section.fontStackHash, section.scale, sectionIndex);
                 x += glyph.metrics.advance * section.scale + spacing;
             } else {
-                shaping.positionedGlyphs.emplace_back(codePoint, x, y + baselineOffset, true, section.fontStackHash, section.scale, sectionIndex);
+                bool verticalGlyph = isTextWritingModeLatinSideways && util::i18n::isFullWidthLatin(codePoint) ? false : true;
+                shaping.positionedGlyphs.emplace_back(codePoint, x, y + baselineOffset, verticalGlyph, section.fontStackHash, section.scale, sectionIndex);
                 x += util::ONE_EM * section.scale + spacing;
             }
         }
@@ -377,7 +381,8 @@ const Shaping getShaping(const TaggedString& formattedString,
                          const Point<float>& translate,
                          const WritingModeType writingMode,
                          BiDi& bidi,
-                         const GlyphMap& glyphs) {   
+                         const GlyphMap& glyphs,
+                         const optional<style::TextWritingModeType>& verticalWritingMode) {
     std::vector<TaggedString> reorderedLines;
     if (formattedString.sectionCount() == 1) {
         auto untaggedLines = bidi.processText(formattedString.rawText(),
@@ -394,7 +399,7 @@ const Shaping getShaping(const TaggedString& formattedString,
     }
     Shaping shaping(translate.x, translate.y, writingMode, reorderedLines.size());
     shapeLines(shaping, reorderedLines, spacing, lineHeight, textAnchor,
-               textJustify, writingMode, glyphs);
+               textJustify, writingMode, glyphs, verticalWritingMode);
     
     return shaping;
 }
