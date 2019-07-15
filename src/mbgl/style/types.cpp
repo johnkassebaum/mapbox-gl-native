@@ -98,7 +98,9 @@ MBGL_DEFINE_ENUM(TextTransformType, {
 
 MBGL_DEFINE_ENUM(TextWritingModeType, {
     { TextWritingModeType::Horizontal, "horizontal" },
-    { TextWritingModeType::Vertical, "vertical" }
+    { TextWritingModeType::Vertical, "vertical" },
+    { TextWritingModeType::VerticalLatinUpright, "vertical-latin-upright" },
+    { TextWritingModeType::VerticalLatinSideways, "vertical-latin-sideways" }
 });
 
 MBGL_DEFINE_ENUM(AlignmentType, {

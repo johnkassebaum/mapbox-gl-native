@@ -117,7 +117,9 @@ enum class IconTextFitType : uint8_t {
 
 enum class TextWritingModeType : uint8_t {
     Horizontal,
-    Vertical
+    Vertical,
+    VerticalLatinUpright,
+    VerticalLatinSideways
 };
 
 enum class LightAnchorType: bool {
