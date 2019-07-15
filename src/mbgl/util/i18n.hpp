@@ -77,6 +77,8 @@ bool isStringInSupportedScript(const std::string& input);
 
 bool isWhitespace(char16_t chr);
 
+bool isFullWidthLatin(char16_t chr);
+
 } // namespace i18n
 } // namespace util
 } // namespace mbgl

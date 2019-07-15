@@ -181,6 +181,9 @@ DEFINE_IS_IN_UNICODE_BLOCK(CJKCompatibilityForms, 0xFE30, 0xFE4F)
 DEFINE_IS_IN_UNICODE_BLOCK(SmallFormVariants, 0xFE50, 0xFE6F)
 DEFINE_IS_IN_UNICODE_BLOCK(ArabicPresentationFormsB, 0xFE70, 0xFEFF)
 DEFINE_IS_IN_UNICODE_BLOCK(HalfwidthandFullwidthForms, 0xFF00, 0xFFEF)
+DEFINE_IS_IN_UNICODE_BLOCK(FullWidthLatinCapital, 0xFF20, 0xFF3B)
+DEFINE_IS_IN_UNICODE_BLOCK(FullWidthLatinSmall, 0xFF40, 0xFF5B)
+DEFINE_IS_IN_UNICODE_BLOCK(FullWidthDigit, 0xFF0F, 0xFF1A)
 // DEFINE_IS_IN_UNICODE_BLOCK(Specials, 0xFFF0, 0xFFFF)
 // DEFINE_IS_IN_UNICODE_BLOCK(LinearBSyllabary, 0x10000, 0x1007F)
 // DEFINE_IS_IN_UNICODE_BLOCK(LinearBIdeograms, 0x10080, 0x100FF)
@@ -643,6 +646,10 @@ bool isStringInSupportedScript(const std::string& input) {
 
 bool isWhitespace(char16_t chr) {
     return chr == u' ' || chr == u'\t' || chr == u'\n' || chr == u'\v' || chr == u'\f' || chr == u'\r';
+}
+
+bool isFullWidthLatin(char16_t chr) {
+    return isInFullWidthLatinCapital(chr) || isInFullWidthLatinSmall(chr) || isInFullWidthDigit(chr);
 }
 
 } // namespace i18n
