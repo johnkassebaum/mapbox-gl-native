@@ -99,6 +99,8 @@ namespace mbgl {
     MBGL_DEFINE_ENUM(MGLTextWritingMode, {
         { MGLTextWritingModeHorizontal, "horizontal" },
         { MGLTextWritingModeVertical, "vertical" },
+        { MGLTextWritingModeVerticalLatinUpright, "vertical-latin-upright" },
+        { MGLTextWritingModeVerticalLatinSideways, "vertical-latin-sideways" },
     });
 
     MBGL_DEFINE_ENUM(MGLIconTranslationAnchor, {

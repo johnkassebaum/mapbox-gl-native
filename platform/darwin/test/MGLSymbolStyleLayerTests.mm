@@ -3195,6 +3195,8 @@
     XCTAssertEqual([NSValue valueWithMGLTextTransform:MGLTextTransformLowercase].MGLTextTransformValue, MGLTextTransformLowercase);
     XCTAssertEqual([NSValue valueWithMGLTextWritingMode:MGLTextWritingModeHorizontal].MGLTextWritingModeValue, MGLTextWritingModeHorizontal);
     XCTAssertEqual([NSValue valueWithMGLTextWritingMode:MGLTextWritingModeVertical].MGLTextWritingModeValue, MGLTextWritingModeVertical);
+    XCTAssertEqual([NSValue valueWithMGLTextWritingMode:MGLTextWritingModeVerticalLatinUpright].MGLTextWritingModeValue, MGLTextWritingModeVerticalLatinUpright);
+    XCTAssertEqual([NSValue valueWithMGLTextWritingMode:MGLTextWritingModeVerticalLatinSideways].MGLTextWritingModeValue, MGLTextWritingModeVerticalLatinSideways);
     XCTAssertEqual([NSValue valueWithMGLIconTranslationAnchor:MGLIconTranslationAnchorMap].MGLIconTranslationAnchorValue, MGLIconTranslationAnchorMap);
     XCTAssertEqual([NSValue valueWithMGLIconTranslationAnchor:MGLIconTranslationAnchorViewport].MGLIconTranslationAnchorValue, MGLIconTranslationAnchorViewport);
     XCTAssertEqual([NSValue valueWithMGLTextTranslationAnchor:MGLTextTranslationAnchorMap].MGLTextTranslationAnchorValue, MGLTextTranslationAnchorMap);

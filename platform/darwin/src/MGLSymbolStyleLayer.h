@@ -335,9 +335,24 @@ typedef NS_ENUM(NSUInteger, MGLTextWritingMode) {
     MGLTextWritingModeHorizontal,
     /**
      If a text's language supports vertical writing mode, symbols with point
-     placement would be laid out vertically.
+     placement would be laid out vertically. Full-width Latin script glyphs
+     would be rendered in upright orientation while half-width Latin script
+     glyphs would be rendered in their respective natural orientation in
+     vertical writing mode.
      */
     MGLTextWritingModeVertical,
+    /**
+     If a text's language supports vertical writing mode, symbols with point
+     placement would be laid out vertically. Latin script glyphs would be
+     rendered in upright orientation.
+     */
+    MGLTextWritingModeVerticalLatinUpright,
+    /**
+     If a text's language supports vertical writing mode, symbols with point
+     placement would be laid out vertically. Latin script glyphs would be
+     rendered in their respective natural orientation in vertical writing mode
+     */
+    MGLTextWritingModeVerticalLatinSideways,
 };
 
 /**
@@ -1692,7 +1707,17 @@ MGL_EXPORT
    * `horizontal`: If a text's language supports horizontal writing mode,
  symbols with point placement would be laid out horizontally.
    * `vertical`: If a text's language supports vertical writing mode, symbols
- with point placement would be laid out vertically.
+ with point placement would be laid out vertically. Full-width Latin script
+ glyphs would be rendered in upright orientation while half-width Latin script
+ glyphs would be rendered in their respective natural orientation in vertical
+ writing mode.
+   * `vertical-latin-upright`: If a text's language supports vertical writing
+ mode, symbols with point placement would be laid out vertically. Latin script
+ glyphs would be rendered in upright orientation.
+   * `vertical-latin-sideways`: If a text's language supports vertical writing
+ mode, symbols with point placement would be laid out vertically. Latin script
+ glyphs would be rendered in their respective natural orientation in vertical
+ writing mode
  * Predefined functions, including mathematical and string operators
  * Conditional expressions
  * Variable assignments and references to assigned variables
