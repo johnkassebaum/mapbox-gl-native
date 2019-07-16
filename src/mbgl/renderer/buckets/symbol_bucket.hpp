@@ -59,7 +59,7 @@ public:
                  const std::vector<SymbolInstance>&&,
                  const float tilePixelRatio,
                  bool allowVerticalPlacement,
-                 std::vector<style::TextWritingModeType> placementModes);
+                 std::vector<style::TextWritingModeType> writingModes);
     ~SymbolBucket() override;
 
     void upload(gfx::UploadPass&) override;
@@ -146,7 +146,7 @@ public:
     bool justReloaded = false;
     bool hasVariablePlacement = false;
     const bool allowVerticalPlacement;
-    const std::vector<style::TextWritingModeType> placementModes;
+    const std::vector<style::TextWritingModeType> writingModes;
     mutable optional<bool> hasFormatSectionOverrides_;
 
     std::shared_ptr<std::vector<size_t>> featureSortOrder;

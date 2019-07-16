@@ -11,6 +11,7 @@
 #include <mbgl/util/string.hpp>
 #include <mbgl/util/i18n.hpp>
 #include <mbgl/util/platform.hpp>
+#include <mbgl/util/logging.hpp>
 #include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/tile/tile.hpp>
 
@@ -29,6 +30,34 @@ static bool has(const style::SymbolLayoutProperties::PossiblyEvaluated& layout) 
 }
 
 namespace {
+
+// The radial offset is to the edge of the text box
+// In the horizontal direction, the edge of the text box is where glyphs start
+// But in the vertical direction, the glyphs appear to "start" at the baseline
+// We don't actually load baseline data, but we assume an offset of ONE_EM - 17
+// (see "yOffset" in shaping.js)
+const float baselineOffset = 7.0f;
+
+// We don't care which shaping we get because this is used for collision purposes
+// and all the justifications have the same collision box.
+const Shaping& getDefaultHorizontalShaping(const ShapedTextOrientations& shapedTextOrientations) {
+    if (shapedTextOrientations.right) return shapedTextOrientations.right;
+    if (shapedTextOrientations.center) return shapedTextOrientations.center;
+    if (shapedTextOrientations.left) return shapedTextOrientations.left;
+    return shapedTextOrientations.horizontal;
+}
+
+Shaping& shapingForTextJustifyType(ShapedTextOrientations& shapedTextOrientations, style::TextJustifyType type) {
+    switch(type) {
+    case style::TextJustifyType::Right: return shapedTextOrientations.right;
+    case style::TextJustifyType::Left: return shapedTextOrientations.left;
+    case style::TextJustifyType::Center: return shapedTextOrientations.center;
+    default:
+        assert(false);
+        return shapedTextOrientations.horizontal;
+    }
+}
+
 expression::Value sectionOptionsToValue(const SectionOptions& options) {
     std::unordered_map<std::string, expression::Value> result;
     // TODO: Data driven properties that can be overridden on per section basis.
@@ -47,6 +76,7 @@ inline const SymbolLayerProperties& toSymbolLayerProperties(const Immutable<Laye
 }
 
 } // namespace
+
 SymbolLayout::SymbolLayout(const BucketParameters& parameters,
                            const std::vector<Immutable<style::LayerProperties>>& layers,
                            std::unique_ptr<GeometryTileLayer> sourceLayer_,
@@ -111,12 +141,18 @@ SymbolLayout::SymbolLayout(const BucketParameters& parameters,
         std::set<style::TextWritingModeType> seen;
         auto end = std::remove_if(modes.begin(),
                                   modes.end(),
-                                  [&seen, &hasVertical = allowVerticalPlacement](const auto& placementMode) {
-                                    hasVertical = hasVertical || placementMode == style::TextWritingModeType::Vertical;
-                                    return !seen.insert(placementMode).second;
+                                  [&mode = verticalWritingMode, &seen, &hasVertical = allowVerticalPlacement](const auto& writingMode) {
+                                    if (!hasVertical && isVerticalWritingModeType(writingMode)) {
+                                        hasVertical = true;
+                                        mode = writingMode;
+                                    } else if (hasVertical && isVerticalWritingModeType(writingMode)) {
+                                        Log::Warning(Event::ParseStyle, "Symbol layer has multiple definitions of vertical writing mode, only one would be used instead.");
+                                        return true;
+                                    }
+                                    return !seen.insert(writingMode).second;
                                   });
 	    modes.erase(end, modes.end());
-        placementModes = std::move(modes);
+        writingModes = std::move(modes);
     }
 
     for (const auto& layer : layers) {
@@ -201,37 +237,6 @@ bool SymbolLayout::hasSymbolInstances() const {
     return !symbolInstances.empty();
 }
 
-namespace {
-
-// The radial offset is to the edge of the text box
-// In the horizontal direction, the edge of the text box is where glyphs start
-// But in the vertical direction, the glyphs appear to "start" at the baseline
-// We don't actually load baseline data, but we assume an offset of ONE_EM - 17
-// (see "yOffset" in shaping.js)
-const float baselineOffset = 7.0f;
-
-// We don't care which shaping we get because this is used for collision purposes
-// and all the justifications have the same collision box.
-const Shaping& getDefaultHorizontalShaping(const ShapedTextOrientations& shapedTextOrientations) {
-    if (shapedTextOrientations.right) return shapedTextOrientations.right;
-    if (shapedTextOrientations.center) return shapedTextOrientations.center;
-    if (shapedTextOrientations.left) return shapedTextOrientations.left;
-    return shapedTextOrientations.horizontal;
-}
-
-Shaping& shapingForTextJustifyType(ShapedTextOrientations& shapedTextOrientations, style::TextJustifyType type) {
-    switch(type) {
-    case style::TextJustifyType::Right: return shapedTextOrientations.right;
-    case style::TextJustifyType::Left: return shapedTextOrientations.left;
-    case style::TextJustifyType::Center: return shapedTextOrientations.center;
-    default:
-        assert(false);
-        return shapedTextOrientations.horizontal;
-    }
-}
-
-}  // namespace
-
 // static
 Point<float> SymbolLayout::evaluateRadialOffset(SymbolAnchorType anchor, float radialOffset) {
     Point<float> result{};
@@ -278,6 +283,20 @@ Point<float> SymbolLayout::evaluateRadialOffset(SymbolAnchorType anchor, float r
     }
 
     return result;
+}
+
+// static
+bool SymbolLayout::isVerticalWritingModeType(style::TextWritingModeType type) {
+    switch (type) {
+        case style::TextWritingModeType::Vertical:
+        case style::TextWritingModeType::VerticalLatinUpright:
+        case style::TextWritingModeType::VerticalLatinSideways:
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }
 
 void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions& glyphPositions,
@@ -595,7 +614,7 @@ void SymbolLayout::createBucket(const ImagePositions&, std::unique_ptr<FeatureIn
     auto bucket = std::make_shared<SymbolBucket>(layout, layerPaintProperties, textSize, iconSize, zoom, sdfIcons, iconsNeedLinear,
                                                  sortFeaturesByY, bucketLeaderID, std::move(symbolInstances), tilePixelRatio,
                                                  allowVerticalPlacement,
-                                                 std::move(placementModes));
+                                                 std::move(writingModes));
 
     for (SymbolInstance &symbolInstance : bucket->symbolInstances) {
         const bool hasText = symbolInstance.hasText;

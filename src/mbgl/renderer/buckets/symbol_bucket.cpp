@@ -25,7 +25,7 @@ SymbolBucket::SymbolBucket(style::SymbolLayoutProperties::PossiblyEvaluated layo
                            const std::vector<SymbolInstance>&& symbolInstances_,
                            float tilePixelRatio_,
                            bool allowVerticalPlacement_,
-                           std::vector<style::TextWritingModeType> placementModes_)
+                           std::vector<style::TextWritingModeType> writingModes_)
     : layout(std::move(layout_)),
       sdfIcons(sdfIcons_),
       iconsNeedLinear(iconsNeedLinear_ || iconSize.isDataDriven() || !iconSize.isZoomConstant()),
@@ -37,7 +37,7 @@ SymbolBucket::SymbolBucket(style::SymbolLayoutProperties::PossiblyEvaluated layo
       tilePixelRatio(tilePixelRatio_),
       bucketInstanceId(++maxBucketInstanceId),
       allowVerticalPlacement(allowVerticalPlacement_),
-      placementModes(std::move(placementModes_)) {
+      writingModes(std::move(writingModes_)) {
 
     for (const auto& pair : paintProperties_) {
         const auto& evaluated = getEvaluated<SymbolLayerProperties>(pair.second);

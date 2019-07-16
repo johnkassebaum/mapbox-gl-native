@@ -46,6 +46,7 @@ public:
     std::vector<SymbolInstance> symbolInstances;
 
     static Point<float> evaluateRadialOffset(style::SymbolAnchorType anchor, float radialOffset);
+    static bool isVerticalWritingModeType(style::TextWritingModeType type);
 
 private:
     void addFeature(const size_t,
@@ -99,7 +100,8 @@ private:
     bool iconsNeedLinear = false;
     bool sortFeaturesByY = false;
     bool allowVerticalPlacement = false;
-    std::vector<style::TextWritingModeType> placementModes;
+    std::vector<style::TextWritingModeType> writingModes;
+    optional<style::TextWritingModeType> verticalWritingMode;
 
     style::TextSize::UnevaluatedType textSize;
     style::IconSize::UnevaluatedType iconSize;

@@ -195,9 +195,9 @@ void Placement::placeBucket(
 
             const auto placeTextForPlacementModes = [&] (auto& placeHorizontalFn, auto& placeVerticalFn) {
                 if (bucket.allowVerticalPlacement && symbolInstance.writingModes & WritingModeType::Vertical) {
-                    assert(!bucket.placementModes.empty());
-                    for (auto& placementMode : bucket.placementModes) {
-                        if (placementMode == style::TextWritingModeType::Vertical) {
+                    assert(!bucket.writingModes.empty());
+                    for (auto& writingMode : bucket.writingModes) {
+                        if (SymbolLayout::isVerticalWritingModeType(writingMode)) {
                             placedVertical = placed = placeVerticalFn();
                         } else {
                             placed = placeHorizontalFn();
