@@ -314,7 +314,8 @@ void shapeLines(Shaping& shaping,
         }
 
         bool isTextWritingModeLatinSideways = verticalWritingMode && *verticalWritingMode == style::TextWritingModeType::VerticalLatinSideways;
-        
+        bool isTextWritingModeLatinUpright = verticalWritingMode && *verticalWritingMode == style::TextWritingModeType::VerticalLatinUpright;
+
         std::size_t lineStartIndex = shaping.positionedGlyphs.size();
         for (std::size_t i = 0; i < line.length(); i++) {
             const std::size_t sectionIndex = line.getSectionIndex(i);
@@ -336,7 +337,7 @@ void shapeLines(Shaping& shaping,
             
             const Glyph& glyph = **it->second;
 
-            if (writingMode == WritingModeType::Horizontal || !util::i18n::hasUprightVerticalOrientation(codePoint)) {
+            if (writingMode == WritingModeType::Horizontal || (!util::i18n::hasUprightVerticalOrientation(codePoint) && !isTextWritingModeLatinUpright)) {
                 shaping.positionedGlyphs.emplace_back(codePoint, x, y + baselineOffset, false, section.fontStackHash, section.scale, sectionIndex);
                 x += glyph.metrics.advance * section.scale + spacing;
             } else {
